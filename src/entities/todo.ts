@@ -10,11 +10,11 @@ export class Todo {
   @PrimaryKey()
   id!: number;
 
-  @Field()
+  @Field(() => String)
   @Property({ type: 'date' })
   createdAt = new Date();
 
-  @Field()
+  @Field(() => String)
   @Property({ onUpdate: () => new Date(), type: 'date' })
   updatedAt = new Date();
 

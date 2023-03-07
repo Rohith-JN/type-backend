@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { MikroORM } from '@mikro-orm/core';
 import express from 'express';
 import { __prod__ } from './constants';
@@ -18,6 +19,7 @@ const main = async () => {
       resolvers: [TodoResolver],
       validate: false,
     }),
+    context: () => ({ em: orm.em }),
   });
   await apolloServer.start();
   apolloServer.applyMiddleware({ app });

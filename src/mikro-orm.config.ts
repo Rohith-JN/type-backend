@@ -2,6 +2,7 @@ import { Options } from '@mikro-orm/core';
 import { __prod__ } from './constants';
 import { Todo } from './entities/todo';
 import path from 'path';
+require('dotenv-flow').config();
 
 const config: Options = {
   migrations: {
