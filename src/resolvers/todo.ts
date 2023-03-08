@@ -1,6 +1,6 @@
-import { Todo } from 'src/entities/todo';
+import { Todo } from '../entities/todo';
 import { Arg, Ctx, Int, Mutation, Query, Resolver } from 'type-graphql';
-import { Context } from 'src/types';
+import { Context } from '../types';
 
 @Resolver()
 export class TodoResolver {

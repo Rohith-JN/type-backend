@@ -2,18 +2,20 @@ import { Options } from '@mikro-orm/core';
 import { __prod__ } from './constants';
 import { Todo } from './entities/todo';
 import path from 'path';
-require('dotenv-flow').config();
+import { User } from './entities/user';
+import * as dotenv from 'dotenv';
 
+dotenv.config();
 const config: Options = {
   migrations: {
     glob: '!(*.d).{js,ts}',
     path: path.join(__dirname, './migrations'),
   },
-  entities: [Todo],
+  entities: [Todo, User],
   dbName: 'tasks',
-  user: process.env.USERNAME,
+  user: process.env.DATABASE_USERNAME,
   type: 'postgresql',
-  password: process.env.PASSWORD,
+  password: process.env.DATABASE_PASSWORD,
   debug: !__prod__,
 };
 
