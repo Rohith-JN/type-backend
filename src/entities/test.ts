@@ -3,7 +3,7 @@ import { ObjectType, Field } from 'type-graphql';
 
 @ObjectType()
 @Entity()
-export class Todo {
+export class Test {
   [OptionalProps]?: 'updatedAt' | 'createdAt';
 
   @Field()
@@ -13,10 +13,6 @@ export class Todo {
   @Field(() => String)
   @Property({ type: 'date' })
   createdAt = new Date();
-
-  @Field(() => String)
-  @Property({ onUpdate: () => new Date(), type: 'date' })
-  updatedAt = new Date();
 
   @Field()
   @Property({ type: 'text' })

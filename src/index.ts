@@ -5,18 +5,18 @@ import { __prod__ } from './constants';
 import config from './mikro-orm.config';
 import { ApolloServer } from 'apollo-server-express';
 import { buildSchema } from 'type-graphql';
-import { TodoResolver } from './resolvers/todo';
+import { TestResolver } from './resolvers/test';
 
 const main = async () => {
   const orm = await MikroORM.init(config);
   await orm.getMigrator().up();
   const app = express();
-  app.listen(3000, () => {
-    console.log('Server started on localhost:3000');
+  app.listen(4000, () => {
+    console.log('Server started on localhost:4000');
   });
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [TodoResolver],
+      resolvers: [TestResolver],
       validate: false,
     }),
     context: () => ({ em: orm.em }),

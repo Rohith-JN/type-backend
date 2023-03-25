@@ -9,15 +9,11 @@ import {
   Resolver,
 } from 'type-graphql';
 import { Context } from '../types';
-import argon2 from 'argon2';
 
 @InputType()
-class UsernamePassword {
+class Username {
   @Field()
   username: string;
-
-  @Field()
-  password: string;
 }
 
 @ObjectType()
@@ -41,10 +37,7 @@ class UserResponse {
 @Resolver()
 export class UserResolver {
   @Mutation(() => UserResponse)
-  async register(
-    @Ctx() ctx: Context,
-    @Arg('options') options: UsernamePassword
-  ) {
+  async register(@Ctx() ctx: Context, @Arg('options') options: Username) {
     if (options.username.length <= 2) {
       return {
         error: [
@@ -55,20 +48,9 @@ export class UserResolver {
         ],
       };
     }
-    if (options.password.length <= 3) {
-      return {
-        error: [
-          {
-            field: 'password',
-            message: 'length must be greater than 3',
-          },
-        ],
-      };
-    }
-    const hashedPassword = await argon2.hash(options.password);
+
     const user = ctx.em.create(User, {
       username: options.username,
-      password: hashedPassword,
     });
     try {
       await ctx.em.persistAndFlush(user);
@@ -85,37 +67,5 @@ export class UserResolver {
       }
     }
     return { user };
-  }
-
-  @Mutation(() => UserResponse)
-  async login(
-    @Ctx() ctx: Context,
-    @Arg('options') options: UsernamePassword
-  ): Promise<UserResponse> {
-    const user = await ctx.em.findOne(User, { username: options.username });
-    if (!user) {
-      return {
-        error: [
-          {
-            field: 'username',
-            message: "that username doesn't exist",
-          },
-        ],
-      };
-    }
-    const valid = await argon2.verify(user.password, options.password);
-    if (!valid) {
-      return {
-        error: [
-          {
-            field: 'password',
-            message: 'incorrect password',
-          },
-        ],
-      };
-    }
-    return {
-      user,
-    };
   }
 }
