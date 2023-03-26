@@ -11,9 +11,18 @@ import {
 import { Context } from '../types';
 
 @InputType()
-class Username {
+class InputFields {
   @Field()
   username: string;
+
+  @Field()
+  email: string;
+
+  @Field()
+  password: string;
+
+  @Field()
+  uid: string;
 }
 
 @ObjectType()
@@ -37,35 +46,21 @@ class UserResponse {
 @Resolver()
 export class UserResolver {
   @Mutation(() => UserResponse)
-  async register(@Ctx() ctx: Context, @Arg('options') options: Username) {
-    if (options.username.length <= 2) {
-      return {
-        error: [
-          {
-            field: 'username',
-            message: 'length must be greater than 2',
-          },
-        ],
-      };
-    }
-
+  async register(@Ctx() ctx: Context, @Arg('options') options: InputFields) {
     const user = ctx.em.create(User, {
       username: options.username,
+      email: options.email,
+      password: options.password,
+      uid: options.uid,
     });
     try {
       await ctx.em.persistAndFlush(user);
+      return { user };
     } catch (err) {
-      if (err.code === '23505') {
-        return {
-          error: [
-            {
-              field: 'username',
-              message: 'username already taken',
-            },
-          ],
-        };
-      }
+      return {
+        error: [{ field: 'unknown', message: 'Unknown error occurred.' }],
+        user: null,
+      };
     }
-    return { user };
   }
 }

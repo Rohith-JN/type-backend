@@ -20,36 +20,13 @@ export class TestResolver {
   @Mutation(() => Test)
   async createTest(
     @Ctx() ctx: Context,
-    @Arg('title') title: string
+    @Arg('time') time: string,
+    @Arg('accuracy') accuracy: string,
+    @Arg('wpm') wpm: number,
+    @Arg('words') words: string
   ): Promise<Test> {
-    const test = ctx.em.create(Test, { title });
+    const test = ctx.em.create(Test, { time, accuracy, wpm, words });
     await ctx.em.persistAndFlush(test);
     return test;
-  }
-
-  @Mutation(() => Test, { nullable: true })
-  async updateTest(
-    @Ctx() ctx: Context,
-    @Arg('id') id: number,
-    @Arg('title', () => String, { nullable: true }) title: string
-  ): Promise<Test | null> {
-    const test = await ctx.em.findOne(Test, { id });
-    if (!test) {
-      return null;
-    }
-    if (typeof title !== undefined) {
-      test.title = title;
-      await ctx.em.persistAndFlush(test);
-    }
-    return test;
-  }
-
-  @Mutation(() => Test, { nullable: true })
-  async deleteTest(
-    @Ctx() ctx: Context,
-    @Arg('id') id: number
-  ): Promise<boolean> {
-    await ctx.em.nativeDelete(Test, { id });
-    return true;
   }
 }

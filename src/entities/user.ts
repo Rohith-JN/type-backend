@@ -10,6 +10,10 @@ export class User {
   @PrimaryKey()
   id!: number;
 
+  @Field()
+  @Property({ type: 'text' })
+  uid!: string;
+
   @Field(() => String)
   @Property({ type: 'date' })
   createdAt = new Date();
@@ -21,4 +25,11 @@ export class User {
   @Field()
   @Property({ type: 'text', unique: true })
   username!: string;
+
+  @Field()
+  @Property({ type: 'text', unique: true })
+  email!: string;
+
+  @Property({ type: 'text' })
+  password!: string;
 }

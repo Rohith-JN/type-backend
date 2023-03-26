@@ -15,6 +15,18 @@ export class Test {
   createdAt = new Date();
 
   @Field()
+  @Property({ type: 'varchar' })
+  time: string;
+
+  @Field()
+  @Property({ type: 'varchar' })
+  accuracy: string;
+
+  @Field()
+  @Property({ type: 'number' })
+  wpm: number;
+
+  @Field()
   @Property({ type: 'text' })
-  title!: string;
+  words: string;
 }
