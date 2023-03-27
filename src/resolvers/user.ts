@@ -1,36 +1,15 @@
 import { User } from '../entities/user';
-import {
-  Arg,
-  Ctx,
-  Field,
-  InputType,
-  Mutation,
-  ObjectType,
-  Resolver,
-} from 'type-graphql';
+import { Arg, Ctx, Field, Mutation, ObjectType, Resolver } from 'type-graphql';
 import { Context } from '../types';
-
-@InputType()
-class InputFields {
-  @Field()
-  username: string;
-
-  @Field()
-  email: string;
-
-  @Field()
-  password: string;
-
-  @Field()
-  uid: string;
-}
+import { Options } from './options';
+import { validateRegister } from '../utils/validate';
 
 @ObjectType()
 class FieldError {
-  @Field()
+  @Field(() => String, { nullable: true })
   field: string;
 
-  @Field()
+  @Field(() => String, { nullable: true })
   message: string;
 }
 
@@ -46,7 +25,7 @@ class UserResponse {
 @Resolver()
 export class UserResolver {
   @Mutation(() => UserResponse)
-  async register(@Ctx() ctx: Context, @Arg('options') options: InputFields) {
+  async register(@Ctx() ctx: Context, @Arg('options') options: Options) {
     const user = ctx.em.create(User, {
       username: options.username,
       email: options.email,
@@ -58,9 +37,41 @@ export class UserResolver {
       return { user };
     } catch (err) {
       return {
-        error: [{ field: 'unknown', message: 'Unknown error occurred.' }],
+        error: [{ field: 'general', message: 'unknown error occurred.' }],
         user: null,
       };
     }
+  }
+
+  @Mutation(() => FieldError)
+  async validate(
+    @Ctx() ctx: Context,
+    @Arg('username') username: string,
+    @Arg('email') email: string,
+    @Arg('password') password: string
+  ) {
+    const errors = validateRegister({
+      username,
+      email,
+      password,
+    });
+    if (errors) {
+      return errors;
+    }
+
+    const usernameExists = await ctx.em.findOne(User, { username: username });
+    const emailExists = await ctx.em.findOne(User, { email: email });
+
+    if (usernameExists) {
+      return {
+        field: 'username',
+        message: 'Username already taken',
+      };
+    } else if (emailExists) {
+      return {
+        field: 'email',
+        message: 'Email already in use',
+      };
+    } else return {};
   }
 }
