@@ -37,7 +37,7 @@ export class UserResolver {
       return { user };
     } catch (err) {
       return {
-        error: [{ field: 'general', message: 'unknown error occurred.' }],
+        error: [{ field: 'general', message: 'Unknown error occurred.' }],
         user: null,
       };
     }
@@ -71,6 +71,26 @@ export class UserResolver {
       return {
         field: 'email',
         message: 'Email already in use',
+      };
+    } else return {};
+  }
+
+  @Mutation(() => FieldError)
+  async login(
+    @Arg('email') email: string,
+    @Arg('password') password: string
+  ) {
+    if (!email.includes('@')) {
+      return {
+        field: 'email',
+        message: 'Invalid email format',
+      };
+    }
+  
+    if (password.length <= 2) {
+      return {
+        field: 'password',
+        message: 'Password length must be > 2',
       };
     } else return {};
   }
