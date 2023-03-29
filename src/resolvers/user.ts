@@ -76,22 +76,31 @@ export class UserResolver {
   }
 
   @Mutation(() => FieldError)
-  async login(
-    @Arg('email') email: string,
-    @Arg('password') password: string
-  ) {
+  async login(@Arg('email') email: string, @Arg('password') password: string) {
     if (!email.includes('@')) {
       return {
         field: 'email',
         message: 'Invalid email format',
       };
     }
-  
+
     if (password.length <= 2) {
       return {
         field: 'password',
         message: 'Password length must be > 2',
       };
     } else return {};
+  }
+
+  @Mutation(() => UserResponse)
+  async user(@Ctx() ctx: Context, @Arg('uid') uid: string) {
+    const user = await ctx.em.findOne(User, { uid: uid });
+    if (user) {
+      return { user };
+    } else
+      return {
+        error: [{ field: 'general', message: 'Could not get user' }],
+        user: null,
+      };
   }
 }
