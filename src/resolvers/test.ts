@@ -14,7 +14,7 @@ export class TestResolver {
     @Arg('id', () => Int) id: number,
     @Ctx() ctx: Context
   ): Promise<Test | null> {
-    return ctx.em.findOne(Test, { id });
+    return ctx.em.findOneBy(Test, { id });
   }
 
   @Mutation(() => Test)
@@ -25,8 +25,6 @@ export class TestResolver {
     @Arg('wpm') wpm: number,
     @Arg('words') words: string
   ): Promise<Test> {
-    const test = ctx.em.create(Test, { time, accuracy, wpm, words });
-    await ctx.em.persistAndFlush(test);
-    return test;
+    return await ctx.em.create(Test, { time, accuracy, wpm, words }).save();
   }
 }

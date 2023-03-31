@@ -26,14 +26,15 @@ class UserResponse {
 export class UserResolver {
   @Mutation(() => UserResponse)
   async register(@Ctx() ctx: Context, @Arg('options') options: Options) {
-    const user = ctx.em.create(User, {
-      username: options.username,
-      email: options.email,
-      password: options.password,
-      uid: options.uid,
-    });
     try {
-      await ctx.em.persistAndFlush(user);
+      const user = ctx.em
+        .create(User, {
+          username: options.username,
+          email: options.email,
+          password: options.password,
+          uid: options.uid,
+        })
+        .save();
       return { user };
     } catch (err) {
       return {
@@ -59,8 +60,8 @@ export class UserResolver {
       return errors;
     }
 
-    const usernameExists = await ctx.em.findOne(User, { username: username });
-    const emailExists = await ctx.em.findOne(User, { email: email });
+    const usernameExists = await ctx.em.findOneBy(User, { username: username });
+    const emailExists = await ctx.em.findOneBy(User, { email: email });
 
     if (usernameExists) {
       return {
@@ -94,7 +95,7 @@ export class UserResolver {
 
   @Mutation(() => UserResponse)
   async user(@Ctx() ctx: Context, @Arg('uid') uid: string) {
-    const user = await ctx.em.findOne(User, { uid: uid });
+    const user = await ctx.em.findOneBy(User, { uid: uid });
     if (user) {
       return { user };
     } else

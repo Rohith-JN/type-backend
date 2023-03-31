@@ -1,15 +1,13 @@
-import { MikroORM } from '@mikro-orm/core';
+import 'reflect-metadata';
 import express from 'express';
 import { __prod__ } from './constants';
-import config from './mikro-orm.config';
 import { ApolloServer } from 'apollo-server-express';
 import { buildSchema } from 'type-graphql';
 import { TestResolver } from './resolvers/test';
 import { UserResolver } from './resolvers/user';
+import { AppDataSource } from './data-source';
 
 const main = async () => {
-  const orm = await MikroORM.init(config);
-  await orm.getMigrator().up();
   const app = express();
   app.listen(4000, () => {
     console.log('Server started on localhost:4000');
@@ -19,7 +17,7 @@ const main = async () => {
       resolvers: [TestResolver, UserResolver],
       validate: false,
     }),
-    context: () => ({ em: orm.em.fork() }),
+    context: () => ({ em: AppDataSource.manager }),
   });
   await apolloServer.start();
   apolloServer.applyMiddleware({ app });
