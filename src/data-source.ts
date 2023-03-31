@@ -4,15 +4,15 @@ import { User } from './entities/user';
 import path from 'path';
 import dotenv from 'dotenv';
 
-dotenv.config({ path: '../.development.env' });
+dotenv.config();
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
   host: 'localhost',
   port: 5432,
   database: 'type-io',
-  username: process.env.DATABASE_USERNAME,
-  password: process.env.DATABASE_PASSWORD,
+  username: process.env.DATABASE_USERNAME?.toString(),
+  password: process.env.DATABASE_PASSWORD?.toString(),
   logging: true,
   synchronize: true,
   entities: [Test, User],

@@ -18,6 +18,7 @@ export class TestResolver {
   }
 
   @Mutation(() => Test)
+  // create test using user uid and check if logged in
   async createTest(
     @Ctx() ctx: Context,
     @Arg('time') time: string,

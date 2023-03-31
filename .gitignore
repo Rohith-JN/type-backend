@@ -1,4 +1,4 @@
 /node_modules
 .env.local
-.development.env
+.env
 /dist

@@ -104,4 +104,14 @@ export class UserResolver {
         user: null,
       };
   }
+
+  @Mutation(() => Boolean)
+  async deleteUser(
+    @Ctx() ctx: Context,
+    @Arg('id') id: number,
+    @Arg('uid') uid: string
+  ): Promise<Boolean> {
+    await ctx.em.delete(User, { id, uid });
+    return true;
+  }
 }

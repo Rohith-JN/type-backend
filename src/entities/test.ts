@@ -1,13 +1,27 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, BaseEntity } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  BaseEntity,
+  ManyToOne,
+} from 'typeorm';
 import { ObjectType, Field } from 'type-graphql';
+import { User } from './user';
 
 @ObjectType()
 @Entity()
 export class Test extends BaseEntity {
-
   @Field()
   @PrimaryGeneratedColumn()
   id!: number;
+
+  @Field(() => String)
+  @Column()
+  creatorId: string;
+
+  @ManyToOne(() => User, (user) => user.tests)
+  creator: User;
 
   @Field()
   @Column()
