@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   BaseEntity,
   ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { ObjectType, Field } from 'type-graphql';
 import { User } from './user';
@@ -16,11 +17,12 @@ export class Test extends BaseEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Field(() => String)
+  @Field()
   @Column()
   creatorId: string;
 
   @ManyToOne(() => User, (user) => user.tests)
+  @JoinColumn({ name: 'creatorId', referencedColumnName: 'uid' })
   creator: User;
 
   @Field()
@@ -37,7 +39,7 @@ export class Test extends BaseEntity {
 
   @Field()
   @Column()
-  words: string;
+  chars: string;
 
   @Field(() => String)
   @CreateDateColumn()

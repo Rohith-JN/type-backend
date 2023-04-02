@@ -6,7 +6,12 @@
   "scripts": {
     "watch": "tsc -w",
     "dev": "nodemon dist/index.js",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "typeorm": "ts-node ./node_modules/typeorm/cli",
+    "migration:create": "typeorm migration:create ./src/migrations/migration",
+    "migration:run": "ts-node ./node_modules/typeorm/cli --dataSource ./dist/data-source.js migration:run",
+    "migration:generate": "ts-node ./node_modules/typeorm/cli --dataSource ./dist/data-source.js migration:generate ./src/migrations/migration",
+    "migration:show": "ts-node ./node_modules/typeorm/cli --dataSource ./dist/data-source.js migration:show"
   },
   "repository": {
     "type": "git",

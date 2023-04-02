@@ -18,14 +18,22 @@ export class TestResolver {
   }
 
   @Mutation(() => Test)
-  // create test using user uid and check if logged in
   async createTest(
     @Ctx() ctx: Context,
+    @Arg('uid') uid: string,
     @Arg('time') time: string,
     @Arg('accuracy') accuracy: string,
     @Arg('wpm') wpm: number,
-    @Arg('words') words: string
+    @Arg('chars') chars: string
   ): Promise<Test> {
-    return await ctx.em.create(Test, { time, accuracy, wpm, words }).save();
+    return await ctx.em
+      .create(Test, {
+        creatorId: uid,
+        time: time,
+        accuracy: accuracy,
+        wpm: wpm,
+        chars: chars,
+      })
+      .save();
   }
 }

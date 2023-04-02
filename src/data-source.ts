@@ -1,8 +1,7 @@
 import { DataSource } from 'typeorm';
-import { Test } from './entities/test';
-import { User } from './entities/user';
-import path from 'path';
 import dotenv from 'dotenv';
+import { User } from './entities/user';
+import { Test } from './entities/test';
 
 dotenv.config();
 
@@ -14,9 +13,10 @@ export const AppDataSource = new DataSource({
   username: process.env.DATABASE_USERNAME?.toString(),
   password: process.env.DATABASE_PASSWORD?.toString(),
   logging: true,
-  synchronize: true,
+  synchronize: false,
+  cache: false,
   entities: [Test, User],
-  migrations: [path.join(__dirname, './migrations/*')],
+  migrations: [],
 });
 
 AppDataSource.initialize()
