@@ -88,7 +88,7 @@ export class UserResolver {
     if (password.length <= 2) {
       return {
         field: 'password',
-        message: 'Password length must be > 2',
+        message: 'Password length must be greater than 2',
       };
     } else return {};
   }

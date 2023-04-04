@@ -5,16 +5,25 @@ import { Context } from '../types';
 @Resolver()
 export class TestResolver {
   @Query(() => [Test])
-  tests(@Ctx() ctx: Context): Promise<Test[]> {
-    return ctx.em.find(Test, {});
-  }
+  tests(
+    @Ctx() ctx: Context,
+    @Arg('uid') uid: string,
+    @Arg('limit', () => Int) limit: number,
+    @Arg('cursor', () => String, { nullable: true }) cursor: string | null
+  ): Promise<Test[]> {
+    const realLimit = Math.min(10, limit);
+    const qb = ctx.em
+      .createQueryBuilder(Test, 'test')
+      .where('test.creatorId = :id', { id: uid })
+      .orderBy('"createdAt"', 'DESC')
+      .take(realLimit);
 
-  @Query(() => Test, { nullable: true })
-  test(
-    @Arg('id', () => Int) id: number,
-    @Ctx() ctx: Context
-  ): Promise<Test | null> {
-    return ctx.em.findOneBy(Test, { id });
+    if (cursor) {
+      qb.where('"createdAt" < :cursor', {
+        cursor: new Date(parseInt(cursor)),
+      });
+    }
+    return qb.getMany();
   }
 
   @Mutation(() => Test)
