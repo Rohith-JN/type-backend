@@ -1,5 +1,5 @@
 import { User } from '../entities/user';
-import { Arg, Ctx, Field, Mutation, ObjectType, Resolver } from 'type-graphql';
+import { Arg, Ctx, Field, Mutation, ObjectType, Query, Resolver } from 'type-graphql';
 import { Context } from '../types';
 import { Options } from './options';
 import { validateRegister } from '../utils/validate';
@@ -93,7 +93,7 @@ export class UserResolver {
     } else return {};
   }
 
-  @Mutation(() => UserResponse)
+  @Query(() => UserResponse)
   async user(@Ctx() ctx: Context, @Arg('uid') uid: string) {
     const user = await ctx.em.findOneBy(User, { uid: uid });
     if (user) {

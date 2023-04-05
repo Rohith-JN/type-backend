@@ -1,29 +1,54 @@
 import { Test } from '../entities/test';
-import { Arg, Ctx, Int, Mutation, Query, Resolver } from 'type-graphql';
+import {
+  Arg,
+  Ctx,
+  Field,
+  Int,
+  Mutation,
+  ObjectType,
+  Query,
+  Resolver,
+} from 'type-graphql';
 import { Context } from '../types';
+
+@ObjectType()
+class PaginatedTests {
+  @Field(() => [Test])
+  tests: Test[];
+
+  @Field()
+  hasMore: boolean;
+}
 
 @Resolver()
 export class TestResolver {
-  @Query(() => [Test])
-  tests(
+  @Query(() => PaginatedTests)
+  async tests(
     @Ctx() ctx: Context,
     @Arg('uid') uid: string,
     @Arg('limit', () => Int) limit: number,
     @Arg('cursor', () => String, { nullable: true }) cursor: string | null
-  ): Promise<Test[]> {
-    const realLimit = Math.min(10, limit);
+  ): Promise<PaginatedTests> {
+    const realLimit = Math.min(50, limit);
+    const realLimitPlusOne = realLimit + 1;
+
     const qb = ctx.em
       .createQueryBuilder(Test, 'test')
       .where('test.creatorId = :id', { id: uid })
       .orderBy('"createdAt"', 'DESC')
-      .take(realLimit);
+      .take(realLimitPlusOne);
 
     if (cursor) {
       qb.where('"createdAt" < :cursor', {
         cursor: new Date(parseInt(cursor)),
       });
     }
-    return qb.getMany();
+    const tests = await qb.getMany();
+
+    return {
+      tests: tests.slice(0, realLimit),
+      hasMore: tests.length === realLimitPlusOne,
+    };
   }
 
   @Mutation(() => Test)
