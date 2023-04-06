@@ -58,7 +58,8 @@ export class TestResolver {
     @Arg('time') time: string,
     @Arg('accuracy') accuracy: string,
     @Arg('wpm') wpm: number,
-    @Arg('chars') chars: string
+    @Arg('chars') chars: string,
+    @Arg('testTaken') testTaken: string
   ): Promise<Test> {
     return await ctx.em
       .create(Test, {
@@ -67,6 +68,7 @@ export class TestResolver {
         accuracy: accuracy,
         wpm: wpm,
         chars: chars,
+        testTaken: testTaken
       })
       .save();
   }

@@ -44,4 +44,8 @@ export class Test extends BaseEntity {
   @Field(() => String)
   @CreateDateColumn()
   createdAt: Date;
+
+  @Field()
+  @Column()
+  testTaken: string;
 }
