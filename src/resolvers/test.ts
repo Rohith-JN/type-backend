@@ -1,14 +1,7 @@
 import { Test } from '../entities/test';
-import {
-  Arg,
-  Ctx,
-  Int,
-  Mutation,
-  Query,
-  Resolver,
-} from 'type-graphql';
+import { Arg, Ctx, Int, Mutation, Query, Resolver } from 'type-graphql';
 import { Context } from '../types';
-import { LeaderBoard, PaginatedTests, UserStats } from 'src/utils/objectTypes';
+import { LeaderBoard, PaginatedTests, UserStats } from '../utils/objectTypes';
 
 @Resolver()
 export class TestResolver {
@@ -64,7 +57,10 @@ export class TestResolver {
   }
 
   @Query(() => UserStats)
-  async getStats(@Ctx() ctx: Context, @Arg('uid') uid: string): Promise<UserStats> {
+  async getStats(
+    @Ctx() ctx: Context,
+    @Arg('uid') uid: string
+  ): Promise<UserStats> {
     const times = ['15', '30', '45', '60', '120'];
     let userStats = [];
 
@@ -105,7 +101,42 @@ export class TestResolver {
   }
 
   @Query(() => LeaderBoard)
-  async leaderboard(@Ctx() ctx: Context, @Arg('uid') uid: string): Promise<LeaderBoard> {
-    
+  async leaderboard(
+    @Ctx() ctx: Context,
+    @Arg('time') time: string
+  ): Promise<LeaderBoard> {
+    const tests = await ctx.em
+      .createQueryBuilder(Test, 'test')
+      .innerJoin(
+        (subQuery) =>
+          subQuery
+            .select('MAX(t.wpm)', 'max_wpm')
+            .addSelect('t.creatorId', 'creatorId')
+            .from(Test, 't')
+            .where('t.time = :time', { time: time })
+            .groupBy('t.creatorId'),
+        'max_tests',
+        'max_tests.max_wpm = test.wpm AND max_tests."creatorId" = test."creatorId"'
+      )
+      .leftJoinAndSelect('test.creator', 'creator')
+      .where('test.time = :time', { time: time })
+      .orderBy('test.wpm', 'DESC')
+      .limit(50)
+      .getMany();
+
+    let leaderBoard = [];
+    for (let i = 0; i < tests.length; i++) {
+      leaderBoard.push({
+        rank: i + 1,
+        user: tests[i].creator.username,
+        wpm: tests[i].wpm,
+        accuracy: tests[i].accuracy,
+        time: time,
+        testTaken: tests[i].testTaken,
+      });
+    }
+    return {
+      leaderBoard,
+    };
   }
 }

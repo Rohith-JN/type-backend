@@ -1,5 +1,5 @@
-import { Test } from 'src/entities/test';
-import { User } from 'src/entities/user';
+import { Test } from '../entities/test';
+import { User } from '../entities/user';
 import { Field, ObjectType } from 'type-graphql';
 
 @ObjectType()
@@ -41,10 +41,13 @@ class LeaderBoardStatFields {
   wpm: number;
 
   @Field()
+  accuracy: string;
+
+  @Field()
   time: string;
 
   @Field()
-  testTaken: number;
+  testTaken: string;
 }
 
 @ObjectType()

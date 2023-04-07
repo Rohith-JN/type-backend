@@ -1,9 +1,9 @@
 import { User } from '../entities/user';
 import { Arg, Ctx, Mutation, Query, Resolver } from 'type-graphql';
 import { Context } from '../types';
-import { Options } from './options';
+import { Options } from '../utils/InputTypes';
 import { validateRegister } from '../utils/validate';
-import { FieldError, UserResponse } from 'src/utils/objectTypes';
+import { FieldError, UserResponse } from '../utils/objectTypes';
 
 @Resolver()
 export class UserResolver {
