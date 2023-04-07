@@ -1,26 +1,9 @@
 import { User } from '../entities/user';
-import { Arg, Ctx, Field, Mutation, ObjectType, Query, Resolver } from 'type-graphql';
+import { Arg, Ctx, Mutation, Query, Resolver } from 'type-graphql';
 import { Context } from '../types';
 import { Options } from './options';
 import { validateRegister } from '../utils/validate';
-
-@ObjectType()
-class FieldError {
-  @Field(() => String, { nullable: true })
-  field: string;
-
-  @Field(() => String, { nullable: true })
-  message: string;
-}
-
-@ObjectType()
-class UserResponse {
-  @Field(() => [FieldError], { nullable: true })
-  error?: FieldError[];
-
-  @Field(() => User, { nullable: true })
-  user?: User;
-}
+import { FieldError, UserResponse } from 'src/utils/objectTypes';
 
 @Resolver()
 export class UserResolver {

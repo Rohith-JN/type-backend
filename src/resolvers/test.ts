@@ -2,23 +2,13 @@ import { Test } from '../entities/test';
 import {
   Arg,
   Ctx,
-  Field,
   Int,
   Mutation,
-  ObjectType,
   Query,
   Resolver,
 } from 'type-graphql';
 import { Context } from '../types';
-
-@ObjectType()
-class PaginatedTests {
-  @Field(() => [Test])
-  tests: Test[];
-
-  @Field()
-  hasMore: boolean;
-}
+import { LeaderBoard, PaginatedTests, UserStats } from 'src/utils/objectTypes';
 
 @Resolver()
 export class TestResolver {
@@ -68,8 +58,54 @@ export class TestResolver {
         accuracy: accuracy,
         wpm: wpm,
         chars: chars,
-        testTaken: testTaken
+        testTaken: testTaken,
       })
       .save();
+  }
+
+  @Query(() => UserStats)
+  async getStats(@Ctx() ctx: Context, @Arg('uid') uid: string): Promise<UserStats> {
+    const times = ['15', '30', '45', '60', '120'];
+    let userStats = [];
+
+    for (let i = 0; i < times.length; i++) {
+      const tests = await ctx.em
+        .createQueryBuilder(Test, 'test')
+        .where('test.creatorId = :id', { id: uid })
+        .andWhere('test.time = :time', { time: times[i] })
+        .orderBy('test.createdAt', 'DESC')
+        .getMany();
+
+      let wpm = 0;
+      let accuracy = 0;
+      let wpmList: number[] = [];
+
+      tests.forEach((test) => {
+        wpm = wpm + test.wpm;
+        accuracy = accuracy + parseInt(test.accuracy.replace('%', ''));
+        wpmList.push(test.wpm);
+      });
+
+      const finalWpm = Math.round(wpm / tests.length);
+      const finalAccuracy = Math.round(accuracy / tests.length);
+      const pb = wpmList.length > 0 ? Math.max(...wpmList) : 0;
+
+      userStats.push({
+        time: times[i],
+        wpm: finalWpm ? finalWpm : 0,
+        pb: pb,
+        accuracy: !Number.isNaN(finalAccuracy) ? `${finalAccuracy}%` : '0%',
+        testsTaken: tests.length,
+      });
+    }
+
+    return {
+      userStats,
+    };
+  }
+
+  @Query(() => LeaderBoard)
+  async leaderboard(@Ctx() ctx: Context, @Arg('uid') uid: string): Promise<LeaderBoard> {
+    
   }
 }
