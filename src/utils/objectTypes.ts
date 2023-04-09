@@ -1,4 +1,3 @@
-import { Test } from '../entities/test';
 import { User } from '../entities/user';
 import { Field, ObjectType } from 'type-graphql';
 
@@ -18,15 +17,6 @@ export class UserResponse {
 
   @Field(() => User, { nullable: true })
   user?: User;
-}
-
-@ObjectType()
-export class PaginatedTests {
-  @Field(() => [Test])
-  tests: Test[];
-
-  @Field()
-  hasMore: boolean;
 }
 
 @ObjectType()
