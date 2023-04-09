@@ -1,5 +1,24 @@
+import { Test } from '../entities/test';
 import { User } from '../entities/user';
 import { Field, ObjectType } from 'type-graphql';
+
+@ObjectType()
+export class Tests {
+  @Field(() => [Test])
+  tests: Test[];
+
+  @Field(() => [Number])
+  wpmData: number[];
+
+  @Field(() => [Number])
+  accuracyData: number[];
+
+  @Field(() => [Number])
+  labels: number[];
+
+  @Field(() => [String])
+  testTaken: string[];
+}
 
 @ObjectType()
 export class FieldError {

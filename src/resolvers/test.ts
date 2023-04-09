@@ -1,20 +1,34 @@
 import { Test } from '../entities/test';
 import { Arg, Ctx, Mutation, Query, Resolver } from 'type-graphql';
 import { Context } from '../types';
-import { LeaderBoard, UserStats } from '../utils/objectTypes';
+import { LeaderBoard, Tests, UserStats } from '../utils/objectTypes';
 
 @Resolver()
 export class TestResolver {
-  @Query(() => [Test])
-  async tests(@Ctx() ctx: Context, @Arg('uid') uid: string): Promise<Test[]> {
+  @Query(() => Tests)
+  async tests(@Ctx() ctx: Context, @Arg('uid') uid: string): Promise<Tests> {
     const qb = ctx.em
       .createQueryBuilder(Test, 'test')
       .where('test.creatorId = :id', { id: uid })
-      .orderBy('"createdAt"', 'DESC')
-      .take(15);
-
+      .orderBy('"createdAt"', 'DESC');
     const tests = await qb.getMany();
-    return tests;
+    let wpmData: number[] = [];
+    let accuracyData: number[] = [];
+    let labels: number[] = [];
+    let testTaken: string[] = [];
+    tests.forEach((test, index) => {
+      wpmData.push(test.wpm);
+      accuracyData.push(parseInt(test.accuracy.replace("%", "")));
+      labels.push(index + 1);
+      testTaken.push(test.testTaken);
+    });
+    return {
+      tests: tests.slice(0, 15),
+      wpmData: wpmData.reverse(),
+      accuracyData: accuracyData.reverse(),
+      labels: labels,
+      testTaken: testTaken.reverse(),
+    };
   }
 
   @Mutation(() => Test)
