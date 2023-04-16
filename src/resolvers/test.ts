@@ -18,7 +18,7 @@ export class TestResolver {
     let testTaken: string[] = [];
     tests.forEach((test, index) => {
       wpmData.push(test.wpm);
-      accuracyData.push(parseInt(test.accuracy.replace("%", "")));
+      accuracyData.push(parseInt(test.accuracy.replace('%', '')));
       labels.push(index + 1);
       testTaken.push(test.testTaken);
     });
@@ -69,6 +69,9 @@ export class TestResolver {
         .orderBy('test.createdAt', 'DESC');
 
       const tests = await qb.getMany();
+      const recentTests = tests.slice(0, 10);
+      let recentWpm = 0;
+      let recentAccuracy = 0;
       let wpm = 0;
       let accuracy = 0;
       let wpmList: number[] = [];
@@ -79,7 +82,15 @@ export class TestResolver {
         accuracy = accuracy + parseInt(test.accuracy.replace('%', ''));
         wpmList.push(test.wpm);
       });
-
+      if (recentTests.length >= 10) {
+        recentTests.forEach((test) => {
+          recentWpm = recentWpm + test.wpm;
+          recentAccuracy =
+            recentAccuracy + parseInt(test.accuracy.replace('%', ''));
+        });
+      }
+      const finalRecentWpm = Math.round(recentWpm / 10);
+      const finalRecentAccuracy = Math.round(recentAccuracy / 10);
       const finalWpm = Math.round(wpm / length);
       const finalAccuracy = Math.round(accuracy / length);
       const pb = wpmList.length > 0 ? Math.max(...wpmList) : 0;
@@ -89,6 +100,10 @@ export class TestResolver {
         wpm: finalWpm ? finalWpm : 0,
         pb: pb,
         accuracy: !Number.isNaN(finalAccuracy) ? `${finalAccuracy}%` : '0%',
+        recentWpm: finalRecentWpm ? finalRecentWpm : 0,
+        recentAccuracy: !Number.isNaN(finalRecentAccuracy)
+          ? `${finalRecentAccuracy}%`
+          : '0%',
         testsTaken: length,
       });
     }

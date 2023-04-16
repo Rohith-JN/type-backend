@@ -1,5 +1,5 @@
 import { User } from '../entities/user';
-import { Arg, Ctx, Mutation, Query, Resolver } from 'type-graphql';
+import { Arg, Ctx, Mutation, Resolver } from 'type-graphql';
 import { Context } from '../types';
 import { Options } from '../utils/InputTypes';
 import { validateRegister } from '../utils/validate';
@@ -74,17 +74,5 @@ export class UserResolver {
         message: 'Password length must be greater than 2',
       };
     } else return {};
-  }
-
-  @Query(() => UserResponse)
-  async user(@Ctx() ctx: Context, @Arg('uid') uid: string) {
-    const user = await ctx.em.findOneBy(User, { uid: uid });
-    if (user) {
-      return { user };
-    } else
-      return {
-        error: [{ field: 'general', message: 'Could not get user' }],
-        user: null,
-      };
   }
 }

@@ -80,6 +80,12 @@ class UserStatFields {
   accuracy: string;
 
   @Field()
+  recentWpm: number;
+
+  @Field()
+  recentAccuracy: string;
+
+  @Field()
   testsTaken: number;
 }
 
