@@ -1,7 +1,12 @@
 import { Test } from '../entities/test';
-import { Arg, Ctx, Mutation, Query, Resolver } from 'type-graphql';
+import { Arg, Ctx, Int, Mutation, Query, Resolver } from 'type-graphql';
 import { Context } from '../types';
-import { LeaderBoard, Tests, UserStats } from '../utils/objectTypes';
+import {
+  LeaderBoard,
+  PaginatedTests,
+  Tests,
+  UserStats,
+} from '../utils/objectTypes';
 
 @Resolver()
 export class TestResolver {
@@ -23,11 +28,41 @@ export class TestResolver {
       testTaken.push(test.testTaken);
     });
     return {
-      tests: tests.slice(0, 15),
       wpmData: wpmData.reverse(),
       accuracyData: accuracyData.reverse(),
       labels: labels,
       testTaken: testTaken.reverse(),
+    };
+  }
+
+  @Query(() => PaginatedTests)
+  async paginatedTests( 
+    @Ctx() ctx: Context,
+    @Arg('uid') uid: string,
+    @Arg('first', () => Int) first: number,
+    @Arg('after', { nullable: true }) after?: string
+  ): Promise<PaginatedTests> {
+    const realLimit = Math.min(50, first);
+    const qb = ctx.em
+      .createQueryBuilder(Test, 'test')
+      .where('test.creatorId = :id', { id: uid })
+      .orderBy('"createdAt"', 'DESC');
+
+    if (after) {
+      const cursorDate = new Date(parseInt(after));
+      qb.andWhere('"createdAt" < :cursor', { cursor: cursorDate });
+    }
+
+    const tests = await qb.take(realLimit + 1).getMany();
+    const hasMore = tests.length === realLimit + 1;
+    const endCursor = tests[tests.length - 2]?.createdAt.getTime().toString() ?? '';
+
+    return {
+      tests: tests.slice(0, realLimit),
+      pageInfo: {
+        hasNextPage: hasMore,
+        endCursor: endCursor.toString(),
+      },
     };
   }
 

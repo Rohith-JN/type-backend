@@ -4,9 +4,6 @@ import { Field, ObjectType } from 'type-graphql';
 
 @ObjectType()
 export class Tests {
-  @Field(() => [Test])
-  tests: Test[];
-
   @Field(() => [Number])
   wpmData: number[];
 
@@ -18,6 +15,24 @@ export class Tests {
 
   @Field(() => [String])
   testTaken: string[];
+}
+
+@ObjectType()
+class PageInfo {
+  @Field(() => Boolean)
+  hasNextPage: boolean;
+
+  @Field(() => String)
+  endCursor: string;
+}
+
+@ObjectType()
+export class PaginatedTests {
+  @Field(() => [Test])
+  tests: Test[];
+
+  @Field(() => PageInfo)
+  pageInfo: PageInfo;
 }
 
 @ObjectType()
