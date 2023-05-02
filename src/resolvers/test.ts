@@ -168,18 +168,43 @@ export class TestResolver {
       )
       .leftJoinAndSelect('test.creator', 'creator')
       .where('test.time = :time', { time: time })
+      .andWhere((qb) => {
+        const subQuery = qb
+          .subQuery()
+          .select('MIN(t2.createdAt)')
+          .from(Test, 't2')
+          .where('t2.creatorId = test.creatorId')
+          .andWhere('t2.wpm = test.wpm')
+          .andWhere('t2.accuracy = test.accuracy')
+          .getQuery();
+        return `test."createdAt" = (${subQuery})`;
+      })
       .orderBy('test.wpm', 'DESC')
+      .addOrderBy('test.accuracy', 'DESC')
       .limit(50);
 
     const tests = await qb.getMany();
     let leaderBoard = [];
     const length = tests.length;
+
+    const userWpm = new Map();
+
     for (let i = 0; i < length; i++) {
+      const { creatorId, wpm, accuracy } = tests[i];
+
+      if (userWpm.has(creatorId) && userWpm.get(creatorId) === wpm) {
+        if (tests[i - 1].accuracy > accuracy) {
+          continue;
+        }
+      }
+
+      userWpm.set(creatorId, wpm);
+
       leaderBoard.push({
         rank: i + 1,
         user: tests[i].creator.username,
-        wpm: tests[i].wpm,
-        accuracy: tests[i].accuracy,
+        wpm: wpm,
+        accuracy: accuracy,
         time: time,
         testTaken: tests[i].testTaken,
       });
