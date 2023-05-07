@@ -2,7 +2,6 @@ import { Test } from '../entities/test';
 import { Arg, Ctx, Int, Mutation, Query, Resolver } from 'type-graphql';
 import { Context } from '../types';
 import {
-  LeaderBoard,
   PaginatedTests,
   Tests,
   UserStats,
@@ -145,72 +144,6 @@ export class TestResolver {
 
     return {
       userStats,
-    };
-  }
-
-  @Query(() => LeaderBoard)
-  async leaderboard(
-    @Ctx() ctx: Context,
-    @Arg('time') time: string
-  ): Promise<LeaderBoard> {
-    const qb = ctx.em
-      .createQueryBuilder(Test, 'test')
-      .innerJoin(
-        (subQuery) =>
-          subQuery
-            .select('MAX(t.wpm)', 'max_wpm')
-            .addSelect('t.creatorId', 'creatorId')
-            .from(Test, 't')
-            .where('t.time = :time', { time: time })
-            .groupBy('t.creatorId'),
-        'max_tests',
-        'max_tests.max_wpm = test.wpm AND max_tests."creatorId" = test."creatorId"'
-      )
-      .leftJoinAndSelect('test.creator', 'creator')
-      .where('test.time = :time', { time: time })
-      .andWhere((qb) => {
-        const subQuery = qb
-          .subQuery()
-          .select('MIN(t2.createdAt)')
-          .from(Test, 't2')
-          .where('t2.creatorId = test.creatorId')
-          .andWhere('t2.wpm = test.wpm')
-          .andWhere('t2.accuracy = test.accuracy')
-          .getQuery();
-        return `test."createdAt" = (${subQuery})`;
-      })
-      .orderBy('test.wpm', 'DESC')
-      .addOrderBy('test.accuracy', 'DESC')
-      .limit(50);
-
-    const tests = await qb.getMany();
-    let leaderBoard = [];
-    const length = tests.length;
-
-    const userWpm = new Map();
-
-    for (let i = 0; i < length; i++) {
-      const { creatorId, wpm, accuracy } = tests[i];
-
-      if (userWpm.has(creatorId) && userWpm.get(creatorId) === wpm) {
-        if (tests[i - 1].accuracy > accuracy) {
-          continue;
-        }
-      }
-
-      userWpm.set(creatorId, wpm);
-
-      leaderBoard.push({
-        rank: i + 1,
-        user: tests[i].creator.username,
-        wpm: wpm,
-        accuracy: accuracy,
-        time: time,
-        testTaken: tests[i].testTaken,
-      });
-    }
-    return {
-      leaderBoard,
     };
   }
 }
