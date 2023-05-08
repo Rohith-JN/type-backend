@@ -2,6 +2,7 @@ import { Test } from '../entities/test';
 import { Arg, Ctx, Int, Mutation, Query, Resolver } from 'type-graphql';
 import { Context } from '../types';
 import {
+  LeaderBoard,
   PaginatedTests,
   Tests,
   UserStats,
@@ -35,7 +36,7 @@ export class TestResolver {
   }
 
   @Query(() => PaginatedTests)
-  async paginatedTests( 
+  async paginatedTests(
     @Ctx() ctx: Context,
     @Arg('uid') uid: string,
     @Arg('first', () => Int) first: number,
@@ -54,7 +55,8 @@ export class TestResolver {
 
     const tests = await qb.take(realLimit + 1).getMany();
     const hasMore = tests.length === realLimit + 1;
-    const endCursor = tests[tests.length - 2]?.createdAt.getTime().toString() ?? '';
+    const endCursor =
+      tests[tests.length - 2]?.createdAt.getTime().toString() ?? '';
 
     return {
       tests: tests.slice(0, realLimit),
@@ -144,6 +146,110 @@ export class TestResolver {
 
     return {
       userStats,
+    };
+  }
+
+  @Query(() => LeaderBoard)
+  async leaderboard(
+    @Ctx() ctx: Context,
+    @Arg('uid') uid: string
+  ): Promise<LeaderBoard> {
+    const qb = ctx.em
+      .createQueryBuilder(Test, 'test')
+      .innerJoin(
+        (subQuery) =>
+          subQuery
+            .select('MAX(t.wpm)', 'max_wpm')
+            .addSelect('t.creatorId', 'creatorId')
+            .addSelect('MAX(t.accuracy)', 'max_accuracy')
+            .from(Test, 't')
+            .where('t.time = :time', { time: '60' })
+            .groupBy('t.creatorId'),
+        'max_tests',
+        'max_tests.max_wpm = test.wpm AND max_tests."creatorId" = test."creatorId" AND max_tests.max_accuracy = test.accuracy'
+      )
+      .leftJoinAndSelect('test.creator', 'creator')
+      .where('test.time = :time', { time: '60' })
+      .andWhere((qb) => {
+        const subQuery = qb
+          .subQuery()
+          .select('MIN(t2.createdAt)')
+          .from(Test, 't2')
+          .where('t2.creatorId = test.creatorId')
+          .andWhere('t2.wpm = test.wpm')
+          .andWhere('t2.accuracy = test.accuracy')
+          .getQuery();
+        return `test."createdAt" = (${subQuery})`;
+      })
+      .orderBy('test.wpm', 'DESC')
+      .addOrderBy('test.accuracy', 'DESC');
+
+    const tests = await qb.getMany();
+    const length = tests.length;
+    let userRank = -1;
+    let userName: string = '';
+    let userWpm: number = 0;
+    let userAccuracy: string = '';
+    let testTaken: string = '';
+
+    let leaderBoard = [];
+
+    let prevWpm = Infinity;
+    let prevAccuracy = 0;
+    let rank = 0;
+
+    // get rank based on wpm
+    // if two users have same wpm and same accuracy then increment rank
+    // if two users have same wpm then arrange in order of increasing accuracy
+    // Issue: if two users have tests with the same wpm and the same accuracy one of them doesn't appear
+    for (let i = 0; i < length; i++) {
+      const { wpm, accuracy } = tests[i];
+
+      if (
+        wpm < prevWpm ||
+        (wpm === prevWpm && parseInt(accuracy.replace('%', '')) > prevAccuracy)
+      ) {
+        rank = i + 1;
+        prevWpm = wpm;
+        prevAccuracy = parseInt(accuracy.replace('%', ''));
+      } else {
+        // If the current test has the same WPM and Accuracy as the previous test,
+        rank += 1;
+      }
+
+      leaderBoard.push({
+        rank,
+        user: tests[i].creator.username,
+        wpm: wpm,
+        accuracy: accuracy,
+        time: '60',
+        testTaken: tests[i].testTaken,
+      });
+    }
+    leaderBoard = leaderBoard.slice(0, 50);
+
+    // Get user rank based on uid
+    for (let i = 0; i < length; i++) {
+      if (tests[i].creatorId === uid) {
+        userRank = i + 1;
+        userName = tests[i].creator.username;
+        userWpm = tests[i].wpm;
+        userAccuracy = tests[i].accuracy;
+        testTaken = tests[i].testTaken;
+        break;
+      }
+    }
+
+    return {
+      leaderBoard,
+      user: {
+        rank: userRank,
+        user: userName,
+        wpm: userWpm,
+        accuracy: userAccuracy,
+        time: '60',
+        testTaken: testTaken,
+      },
     };
   }
 }

@@ -82,3 +82,33 @@ export class UserStats {
   @Field(() => [UserStatFields])
   userStats: UserStatFields[];
 }
+
+@ObjectType()
+class LeaderBoardStatFields {
+  @Field()
+  rank: number;
+
+  @Field()
+  user: string;
+
+  @Field()
+  wpm: number;
+
+  @Field()
+  accuracy: string;
+
+  @Field()
+  time: string;
+
+  @Field()
+  testTaken: string;
+}
+
+@ObjectType()
+export class LeaderBoard {
+  @Field(() => [LeaderBoardStatFields])
+  leaderBoard: LeaderBoardStatFields[];
+
+  @Field(() => LeaderBoardStatFields)
+  user: LeaderBoardStatFields; 
+}
