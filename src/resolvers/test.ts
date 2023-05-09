@@ -23,7 +23,7 @@ export class TestResolver {
     let testTaken: string[] = [];
     tests.forEach((test, index) => {
       wpmData.push(test.wpm);
-      accuracyData.push(parseInt(test.accuracy.replace('%', '')));
+      accuracyData.push(test.accuracy);
       labels.push(index + 1);
       testTaken.push(test.testTaken);
     });
@@ -72,7 +72,7 @@ export class TestResolver {
     @Ctx() ctx: Context,
     @Arg('uid') uid: string,
     @Arg('time') time: string,
-    @Arg('accuracy') accuracy: string,
+    @Arg('accuracy') accuracy: number,
     @Arg('wpm') wpm: number,
     @Arg('chars') chars: string,
     @Arg('testTaken') testTaken: string
@@ -115,14 +115,13 @@ export class TestResolver {
 
       tests.forEach((test) => {
         wpm = wpm + test.wpm;
-        accuracy = accuracy + parseInt(test.accuracy.replace('%', ''));
+        accuracy = accuracy + test.accuracy;
         wpmList.push(test.wpm);
       });
       if (recentTests.length >= 10) {
         recentTests.forEach((test) => {
           recentWpm = recentWpm + test.wpm;
-          recentAccuracy =
-            recentAccuracy + parseInt(test.accuracy.replace('%', ''));
+          recentAccuracy = recentAccuracy + test.accuracy;
         });
       }
       const finalRecentWpm = Math.round(recentWpm / 10);
@@ -161,35 +160,47 @@ export class TestResolver {
           subQuery
             .select('MAX(t.wpm)', 'max_wpm')
             .addSelect('t.creatorId', 'creatorId')
-            .addSelect('MAX(t.accuracy)', 'max_accuracy')
             .from(Test, 't')
             .where('t.time = :time', { time: '60' })
             .groupBy('t.creatorId'),
         'max_tests',
-        'max_tests.max_wpm = test.wpm AND max_tests."creatorId" = test."creatorId" AND max_tests.max_accuracy = test.accuracy'
+        'max_tests.max_wpm = test.wpm AND max_tests."creatorId" = test."creatorId"'
       )
-      .leftJoinAndSelect('test.creator', 'creator')
       .where('test.time = :time', { time: '60' })
       .andWhere((qb) => {
         const subQuery = qb
           .subQuery()
-          .select('MIN(t2.createdAt)')
+          .select('MAX(t2.accuracy)')
           .from(Test, 't2')
-          .where('t2.creatorId = test.creatorId')
+          .where('t2.time = :time')
           .andWhere('t2.wpm = test.wpm')
-          .andWhere('t2.accuracy = test.accuracy')
+          .andWhere('t2.creatorId = test.creatorId')
+          .setParameter('time', '60')
+          .getQuery();
+        return `test.accuracy = (${subQuery})`;
+      })
+      .andWhere((qb) => {
+        const subQuery = qb
+          .subQuery()
+          .select('MIN(t3.createdAt)')
+          .from(Test, 't3')
+          .where('t3.creatorId = test.creatorId')
+          .andWhere('t3.wpm = test.wpm')
+          .andWhere('t3.accuracy = test.accuracy')
+          .setParameter('time', '60')
           .getQuery();
         return `test."createdAt" = (${subQuery})`;
       })
+      .leftJoinAndSelect('test.creator', 'creator')
       .orderBy('test.wpm', 'DESC')
-      .addOrderBy('test.accuracy', 'DESC');
+      .addOrderBy('test.accuracy', 'DESC')
+      .addOrderBy('test.createdAt', 'ASC');
 
     const tests = await qb.getMany();
-    const length = tests.length;
-    let userRank = -1;
+    let userRank: number = -1;
     let userName: string = '';
     let userWpm: number = 0;
-    let userAccuracy: string = '';
+    let userAccuracy: number = 0;
     let testTaken: string = '';
 
     let leaderBoard = [];
@@ -198,22 +209,14 @@ export class TestResolver {
     let prevAccuracy = 0;
     let rank = 0;
 
-    // get rank based on wpm
-    // if two users have same wpm and same accuracy then increment rank
-    // if two users have same wpm then arrange in order of increasing accuracy
-    // Issue: if two users have tests with the same wpm and the same accuracy one of them doesn't appear
-    for (let i = 0; i < length; i++) {
+    for (let i = 0; i < tests.length; i++) {
       const { wpm, accuracy } = tests[i];
 
-      if (
-        wpm < prevWpm ||
-        (wpm === prevWpm && parseInt(accuracy.replace('%', '')) > prevAccuracy)
-      ) {
+      if (wpm < prevWpm || (wpm === prevWpm && accuracy > prevAccuracy)) {
         rank = i + 1;
         prevWpm = wpm;
-        prevAccuracy = parseInt(accuracy.replace('%', ''));
+        prevAccuracy = accuracy;
       } else {
-        // If the current test has the same WPM and Accuracy as the previous test,
         rank += 1;
       }
 
@@ -222,23 +225,19 @@ export class TestResolver {
         user: tests[i].creator.username,
         wpm: wpm,
         accuracy: accuracy,
-        time: '60',
         testTaken: tests[i].testTaken,
       });
-    }
-    leaderBoard = leaderBoard.slice(0, 50);
 
-    // Get user rank based on uid
-    for (let i = 0; i < length; i++) {
       if (tests[i].creatorId === uid) {
-        userRank = i + 1;
+        userRank = rank;
         userName = tests[i].creator.username;
         userWpm = tests[i].wpm;
         userAccuracy = tests[i].accuracy;
         testTaken = tests[i].testTaken;
-        break;
       }
     }
+    // change slice end no to whatever number of tests have to be shown
+    leaderBoard = leaderBoard.slice(0, 50);
 
     return {
       leaderBoard,
@@ -247,7 +246,6 @@ export class TestResolver {
         user: userName,
         wpm: userWpm,
         accuracy: userAccuracy,
-        time: '60',
         testTaken: testTaken,
       },
     };
