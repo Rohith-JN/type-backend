@@ -7,7 +7,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { ObjectType, Field } from 'type-graphql';
+import { ObjectType, Field, Float } from 'type-graphql';
 import { User } from './user';
 
 @ObjectType()
@@ -29,9 +29,9 @@ export class Test extends BaseEntity {
   @Column()
   time: string;
 
-  @Field()
-  @Column()
-  accuracy: string;
+  @Field(() => Float)
+  @Column('double precision')
+  accuracy: number;
 
   @Field()
   @Column()

@@ -95,10 +95,7 @@ class LeaderBoardStatFields {
   wpm: number;
 
   @Field()
-  accuracy: string;
-
-  @Field()
-  time: string;
+  accuracy: number;
 
   @Field()
   testTaken: string;
