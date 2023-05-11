@@ -1,17 +1,17 @@
-Type.io - A Modern Typing Test
+# Type.io - A Modern Typing Test
 
 Type.io is a full-stack web application for testing your typing speed and accuracy. With an intuitive and minimalistic interface, Type.io offers a natural typing experience, providing real-time feedback on your typing speed and accuracy. The application includes an account system for saving your typing speed history and user-configurable features such as themes.
 
-**Technologies Used**
+## Technologies Used
 Type.io is built using a range of modern web technologies, including:
 
-**Frontend**
+## Frontend
 
 1) React.js
 2) Next.js
 3) TypeScript
   
-**Backend**
+## Backend
 
 1) Node.js
 2) Express.js
@@ -20,7 +20,7 @@ Type.io is built using a range of modern web technologies, including:
 5) TypeORM
 6) PostgreSQL
   
-**Contributing**
+## Contributing
 
 If you would like to contribute to Type.io, you can follow these steps:
 
