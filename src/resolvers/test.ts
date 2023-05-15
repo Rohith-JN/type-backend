@@ -74,7 +74,8 @@ export class TestResolver {
     @Arg('time') time: string,
     @Arg('accuracy') accuracy: number,
     @Arg('wpm') wpm: number,
-    @Arg('words') words: string,
+    @Arg('rawWpm') rawWpm: number,
+    @Arg('chars') chars: string,
     @Arg('testTaken') testTaken: string
   ): Promise<Test> {
     return await ctx.em
@@ -83,7 +84,8 @@ export class TestResolver {
         time: time,
         accuracy: accuracy,
         wpm: wpm,
-        words: words,
+        rawWpm: rawWpm,
+        chars: chars,
         testTaken: testTaken,
       })
       .save();

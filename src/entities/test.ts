@@ -39,7 +39,11 @@ export class Test extends BaseEntity {
 
   @Field()
   @Column()
-  words: string;
+  rawWpm: number;
+
+  @Field()
+  @Column()
+  chars: string;
 
   @Field(() => String)
   @CreateDateColumn()
