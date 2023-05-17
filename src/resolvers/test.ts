@@ -7,9 +7,20 @@ import {
   Tests,
   UserStats,
 } from '../utils/objectTypes';
+import { TestOptions } from '../utils/InputTypes';
 
 @Resolver()
 export class TestResolver {
+  @Query(() => Test)
+  async test(
+    @Ctx() ctx: Context,
+    @Arg('uid') uid: string,
+    @Arg('id') id: number
+  ): Promise<Test | null> {
+    const test = ctx.em.findOneBy(Test, { id: id, creatorId: uid });
+    return test;
+  }
+
   @Query(() => Tests)
   async tests(@Ctx() ctx: Context, @Arg('uid') uid: string): Promise<Tests> {
     const qb = ctx.em
@@ -70,23 +81,21 @@ export class TestResolver {
   @Mutation(() => Test)
   async createTest(
     @Ctx() ctx: Context,
-    @Arg('uid') uid: string,
-    @Arg('time') time: string,
-    @Arg('accuracy') accuracy: number,
-    @Arg('wpm') wpm: number,
-    @Arg('rawWpm') rawWpm: number,
-    @Arg('chars') chars: string,
-    @Arg('testTaken') testTaken: string
+    @Arg('testOptions') testOptions: TestOptions
   ): Promise<Test> {
     return await ctx.em
       .create(Test, {
-        creatorId: uid,
-        time: time,
-        accuracy: accuracy,
-        wpm: wpm,
-        rawWpm: rawWpm,
-        chars: chars,
-        testTaken: testTaken,
+        creatorId: testOptions.uid,
+        time: testOptions.time,
+        accuracy: testOptions.accuracy,
+        wpm: testOptions.wpm,
+        rawWpm: testOptions.rawWpm,
+        chars: testOptions.chars,
+        testTaken: testOptions.testTaken,
+        typedWordDataset: testOptions.typedWordDataset,
+        wordNumberLabels: testOptions.wordNumberLabels,
+        wpmDataset: testOptions.wpmDataset,
+        incorrectCharsDataset: testOptions.incorrectCharsDataset,
       })
       .save();
   }

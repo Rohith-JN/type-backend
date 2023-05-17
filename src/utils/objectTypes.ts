@@ -107,5 +107,5 @@ export class LeaderBoard {
   leaderBoard: LeaderBoardStatFields[];
 
   @Field(() => LeaderBoardStatFields)
-  user: LeaderBoardStatFields; 
+  user: LeaderBoardStatFields;
 }
