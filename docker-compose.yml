@@ -1,0 +1,30 @@
+version: "3"
+services:
+  app:
+    build: .
+    depends_on:
+      - database
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      NODE_ENV: production
+      PORT: 4000
+    ports:
+      - "4000:4000"
+    command: npm run dev
+    volumes:
+      - app-data:/app
+
+  database:
+    image: postgres:latest
+    ports:
+      - "35432:5432"
+    environment:
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: type-io-prod
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+volumes:
+  app-data:
+  db-data: 
