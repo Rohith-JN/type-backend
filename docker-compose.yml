@@ -1,6 +1,9 @@
 version: "3"
 services:
-  app:
+  type:
+    container_name: type-backend
+    image: type:latest
+    restart: on-failure
     build: .
     depends_on:
       - database
@@ -12,16 +15,18 @@ services:
       - "4000:4000"
     command: npm run dev
     volumes:
-      - app-data:/app
+      - app-data:/type
 
   database:
     image: postgres:latest
+    container_name: type-database
+    restart: on-failure
     ports:
       - "35432:5432"
     environment:
       POSTGRES_USER: ${DATABASE_USERNAME}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
-      POSTGRES_DB: type-io-prod
+      POSTGRES_DB: type-prod
     volumes:
       - db-data:/var/lib/postgresql/data
 

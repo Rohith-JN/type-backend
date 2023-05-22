@@ -12,7 +12,7 @@ export const AppDataSource = new DataSource({
   port: 5432,
   username: process.env.DATABASE_USERNAME,
   password: process.env.DATABASE_PASSWORD,
-  database: 'type-io-prod',
+  database: process.env.DATABASE_NAME,
   logging: true,
   synchronize: false,
   cache: false,
