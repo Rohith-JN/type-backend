@@ -6,6 +6,7 @@ import { TestResolver } from './resolvers/test';
 import { UserResolver } from './resolvers/user';
 import { AppDataSource } from './data-source';
 import dotenv from 'dotenv';
+import { __prod__ } from './constants';
 
 dotenv.config();
 
@@ -20,7 +21,7 @@ const main = async () => {
       validate: false,
     }),
     persistedQueries: false,
-    introspection: false,
+    introspection: __prod__ ? false : true,
     context: () => ({ em: AppDataSource.manager }),
   });
 
