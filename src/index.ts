@@ -7,14 +7,24 @@ import { UserResolver } from './resolvers/user';
 import { AppDataSource } from './data-source';
 import dotenv from 'dotenv';
 import { __prod__ } from './constants';
+import cors from 'cors';
 
 dotenv.config();
 
 const main = async () => {
   const app = express();
-  app.listen(process.env.PORT, () => {
-    console.log(`Server started on localhost:${process.env.PORT}`);
-  });
+  app.use(
+    cors({
+      origin: process.env.CORS_ORIGIN,
+      credentials: true,
+    })
+  );
+  __prod__
+    ? null
+    : app.listen(4000, () => {
+        console.log(`Server started on localhost:4000`);
+      });
+
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
       resolvers: [TestResolver, UserResolver],
@@ -26,7 +36,10 @@ const main = async () => {
   });
 
   await apolloServer.start();
-  apolloServer.applyMiddleware({ app });
+  apolloServer.applyMiddleware({
+    app,
+    cors: false,
+  });
 };
 
 main().catch((err) => {
