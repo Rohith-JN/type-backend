@@ -36,7 +36,7 @@ const main = async () => {
   await apolloServer.start();
   apolloServer.applyMiddleware({
     app,
-    cors: false,
+    cors: true,
   });
 };
 
