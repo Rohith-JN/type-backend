@@ -95,6 +95,9 @@ class LeaderBoardStatFields {
   wpm: number;
 
   @Field()
+  rawWpm: number;
+
+  @Field()
   accuracy: number;
 
   @Field()

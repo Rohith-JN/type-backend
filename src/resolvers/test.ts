@@ -212,6 +212,7 @@ export class TestResolver {
     let userName: string = '';
     let userWpm: number = 0;
     let userAccuracy: number = 0;
+    let userRawWpm: number = 0;
     let testTaken: string = '';
 
     let leaderBoard = [];
@@ -235,6 +236,7 @@ export class TestResolver {
         rank,
         user: tests[i].creator.username,
         wpm: wpm,
+        rawWpm: tests[i].rawWpm,
         accuracy: accuracy,
         testTaken: tests[i].testTaken,
       });
@@ -243,6 +245,7 @@ export class TestResolver {
         userRank = rank;
         userName = tests[i].creator.username;
         userWpm = tests[i].wpm;
+        userRawWpm = tests[i].rawWpm;
         userAccuracy = tests[i].accuracy;
         testTaken = tests[i].testTaken;
       }
@@ -256,6 +259,7 @@ export class TestResolver {
         rank: userRank,
         user: userName,
         wpm: userWpm,
+        rawWpm: userRawWpm,
         accuracy: userAccuracy,
         testTaken: testTaken,
       },
