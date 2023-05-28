@@ -9,9 +9,6 @@ export class Options {
   email: string;
 
   @Field()
-  password: string;
-
-  @Field()
   uid: string;
 }
 

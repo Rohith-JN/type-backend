@@ -1,4 +1,4 @@
-export const validateRegister = (options: {
+export const validate = (options: {
   username: string;
   email: string;
   password: string;
@@ -14,6 +14,13 @@ export const validateRegister = (options: {
     return {
       field: 'username',
       message: 'Username length must be greater than 2',
+    };
+  }
+
+  if (options.username.length > 14) {
+    return {
+      field: 'username',
+      message: 'Username length must be less than 15',
     };
   }
 

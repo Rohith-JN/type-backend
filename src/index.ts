@@ -13,9 +13,17 @@ dotenv.config();
 
 const main = async () => {
   const app = express();
+  app.set('trust proxy', true);
+
   app.use(
     cors({
-      origin: process.env.CORS_ORIGIN,
+      origin: __prod__
+        ? process.env.CORS_ORIGIN
+        : [
+            'https://studio.apollographql.com',
+            'http://localhost:4000/graphql',
+            process.env.CORS_ORIGIN!,
+          ],
       credentials: true,
     })
   );

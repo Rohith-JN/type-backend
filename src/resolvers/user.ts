@@ -2,7 +2,7 @@ import { User } from '../entities/user';
 import { Arg, Ctx, Mutation, Resolver } from 'type-graphql';
 import { Context } from '../types';
 import { Options } from '../utils/InputTypes';
-import { validateRegister } from '../utils/validate';
+import { validate } from '../utils/validate';
 import { FieldError, UserResponse } from '../utils/objectTypes';
 
 @Resolver()
@@ -14,7 +14,6 @@ export class UserResolver {
         .create(User, {
           username: options.username,
           email: options.email,
-          password: options.password,
           uid: options.uid,
         })
         .save();
@@ -34,7 +33,7 @@ export class UserResolver {
     @Arg('email') email: string,
     @Arg('password') password: string
   ) {
-    const errors = validateRegister({
+    const errors = validate({
       username,
       email,
       password,
@@ -55,23 +54,6 @@ export class UserResolver {
       return {
         field: 'email',
         message: 'Email already in use',
-      };
-    } else return {};
-  }
-
-  @Mutation(() => FieldError)
-  async login(@Arg('email') email: string, @Arg('password') password: string) {
-    if (!email.includes('@')) {
-      return {
-        field: 'email',
-        message: 'Invalid email format',
-      };
-    }
-
-    if (password.length <= 2) {
-      return {
-        field: 'password',
-        message: 'Password length must be greater than 2',
       };
     } else return {};
   }
