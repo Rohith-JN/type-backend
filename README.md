@@ -4,38 +4,11 @@
 
 ![Web 1920 – 1](https://github.com/Rohith-JN/type-backend/assets/78314165/de9a378a-8fee-4eef-9574-73c641879571)
 
-
-Demo
-
-https://github.com/Rohith-JN/type-backend/assets/78314165/286db84c-efe9-433b-b6cb-f6fd4c525291
-
-
-
 Type is a full-stack web application for testing your typing speed and accuracy. With an intuitive and minimalistic interface, Type offers a natural typing experience, providing real-time feedback on your typing speed and accuracy. The application includes an account system for saving your typing speed history and user-configurable features such as themes.
-
-## Technologies Used
-Type is built using a range of modern web technologies, including:
-
-## Frontend
-
-1) React.js
-2) Next.js
-3) TypeScript
-4) Redux
-5) Firebase
-  
-## Backend
-
-1) Node.js
-2) Express.js
-3) GraphQL
-4) URQL
-5) TypeORM
-6) PostgreSQL
-7) Docker
 
 ## Project Structure
 
+```
 src
    |-- constants.ts
    |-- data-source.ts
@@ -63,6 +36,7 @@ docker-compose.yml
 package-lock.json
 package.json
 tsconfig.json
+```
 
 ## Setup Project Locally
 
@@ -94,6 +68,27 @@ If you want to test the site locally follow these steps:
 8) Run *npm run migration:run*; this will setup the tables in postgres
 9) Run *npm install*
 10) You have successfully setup the Backend
+
+## Technologies Used
+Type is built using a range of modern web technologies, including:
+
+## Frontend
+
+1) React.js
+2) Next.js
+3) TypeScript
+4) Redux
+5) Firebase
+  
+## Backend
+
+1) Node.js
+2) Express.js
+3) GraphQL
+4) URQL
+5) TypeORM
+6) PostgreSQL
+7) Docker
   
 ## Contributing
 
