@@ -52,20 +52,4 @@ export class Test extends BaseEntity {
   @Field()
   @Column()
   testTaken: string;
-
-  @Field(() => [String])
-  @Column('text', { array: true })
-  typedWordDataset: string[];
-
-  @Field(() => [Number])
-  @Column('int', { array: true })
-  wordNumberLabels: number[];
-
-  @Field(() => [Number])
-  @Column('int', { array: true })
-  wpmDataset: number[];
-
-  @Field(() => [Number])
-  @Column('int', { array: true })
-  incorrectCharsDataset: number[];
 }

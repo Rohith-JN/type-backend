@@ -34,16 +34,4 @@ export class TestOptions {
 
   @Field()
   testTaken: string;
-
-  @Field(() => [String])
-  typedWordDataset: string[];
-
-  @Field(() => [Number])
-  wordNumberLabels: number[];
-
-  @Field(() => [Number])
-  wpmDataset: number[];
-
-  @Field(() => [Number])
-  incorrectCharsDataset: number[];
 }

@@ -92,10 +92,6 @@ export class TestResolver {
         rawWpm: testOptions.rawWpm,
         chars: testOptions.chars,
         testTaken: testOptions.testTaken,
-        typedWordDataset: testOptions.typedWordDataset,
-        wordNumberLabels: testOptions.wordNumberLabels,
-        wpmDataset: testOptions.wpmDataset,
-        incorrectCharsDataset: testOptions.incorrectCharsDataset,
       })
       .save();
   }
