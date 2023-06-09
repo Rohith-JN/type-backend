@@ -17,10 +17,10 @@ export const validate = (options: {
     };
   }
 
-  if (options.username.length > 14) {
+  if (options.username.length > 7) {
     return {
       field: 'username',
-      message: 'Username length must be less than 15',
+      message: 'Username length must be less than 8',
     };
   }
 

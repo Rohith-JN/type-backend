@@ -158,7 +158,8 @@ export class TestResolver {
   @Query(() => LeaderBoard)
   async leaderboard(
     @Ctx() ctx: Context,
-    @Arg('uid') uid: string
+    @Arg('uid') uid: string,
+    @Arg('time') time: string
   ): Promise<LeaderBoard> {
     const qb = ctx.em
       .createQueryBuilder(Test, 'test')
@@ -168,12 +169,12 @@ export class TestResolver {
             .select('MAX(t.wpm)', 'max_wpm')
             .addSelect('t.creatorId', 'creatorId')
             .from(Test, 't')
-            .where('t.time = :time', { time: '60' })
+            .where('t.time = :time', { time: time })
             .groupBy('t.creatorId'),
         'max_tests',
         'max_tests.max_wpm = test.wpm AND max_tests."creatorId" = test."creatorId"'
       )
-      .where('test.time = :time', { time: '60' })
+      .where('test.time = :time', { time: time })
       .andWhere((qb) => {
         const subQuery = qb
           .subQuery()
@@ -182,7 +183,7 @@ export class TestResolver {
           .where('t2.time = :time')
           .andWhere('t2.wpm = test.wpm')
           .andWhere('t2.creatorId = test.creatorId')
-          .setParameter('time', '60')
+          .setParameter('time', time)
           .getQuery();
         return `test.accuracy = (${subQuery})`;
       })
@@ -194,7 +195,7 @@ export class TestResolver {
           .where('t3.creatorId = test.creatorId')
           .andWhere('t3.wpm = test.wpm')
           .andWhere('t3.accuracy = test.accuracy')
-          .setParameter('time', '60')
+          .setParameter('time', time)
           .getQuery();
         return `test."createdAt" = (${subQuery})`;
       })
@@ -209,6 +210,7 @@ export class TestResolver {
     let userWpm: number = 0;
     let userAccuracy: number = 0;
     let userRawWpm: number = 0;
+    let userTime: string = '';
     let testTaken: string = '';
 
     let leaderBoard = [];
@@ -233,6 +235,7 @@ export class TestResolver {
         user: tests[i].creator.username,
         wpm: wpm,
         rawWpm: tests[i].rawWpm,
+        time: tests[i].time,
         accuracy: accuracy,
         testTaken: tests[i].testTaken,
       });
@@ -242,6 +245,7 @@ export class TestResolver {
         userName = tests[i].creator.username;
         userWpm = tests[i].wpm;
         userRawWpm = tests[i].rawWpm;
+        userTime = tests[i].time;
         userAccuracy = tests[i].accuracy;
         testTaken = tests[i].testTaken;
       }
@@ -256,6 +260,7 @@ export class TestResolver {
         user: userName,
         wpm: userWpm,
         rawWpm: userRawWpm,
+        time: userTime,
         accuracy: userAccuracy,
         testTaken: testTaken,
       },
