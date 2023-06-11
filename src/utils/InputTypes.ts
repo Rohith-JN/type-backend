@@ -18,7 +18,7 @@ export class TestOptions {
   uid: string;
 
   @Field()
-  time: string;
+  time: number;
 
   @Field()
   accuracy: number;

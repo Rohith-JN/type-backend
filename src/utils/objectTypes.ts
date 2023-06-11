@@ -56,7 +56,7 @@ export class UserResponse {
 @ObjectType()
 class UserStatFields {
   @Field()
-  time: string;
+  time: number;
 
   @Field()
   wpm: number;
@@ -98,7 +98,7 @@ class LeaderBoardStatFields {
   rawWpm: number;
 
   @Field()
-  time: string;
+  time: number;
 
   @Field()
   accuracy: number;

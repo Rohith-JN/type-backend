@@ -101,7 +101,7 @@ export class TestResolver {
     @Ctx() ctx: Context,
     @Arg('uid') uid: string
   ): Promise<UserStats> {
-    const times = ['15', '30', '45', '60', '120'];
+    const times = [15, 30, 45, 60, 120];
     let userStats = [];
 
     for (let i = 0; i < times.length; i++) {
@@ -159,7 +159,7 @@ export class TestResolver {
   async leaderboard(
     @Ctx() ctx: Context,
     @Arg('uid') uid: string,
-    @Arg('time') time: string
+    @Arg('time') time: number
   ): Promise<LeaderBoard> {
     const qb = ctx.em
       .createQueryBuilder(Test, 'test')
@@ -210,7 +210,7 @@ export class TestResolver {
     let userWpm: number = 0;
     let userAccuracy: number = 0;
     let userRawWpm: number = 0;
-    let userTime: string = '';
+    let userTime: number = 0;
     let testTaken: string = '';
 
     let leaderBoard = [];

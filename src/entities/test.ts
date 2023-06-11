@@ -27,7 +27,7 @@ export class Test extends BaseEntity {
 
   @Field()
   @Column()
-  time: string;
+  time: number;
 
   @Field(() => Float)
   @Column('double precision')
