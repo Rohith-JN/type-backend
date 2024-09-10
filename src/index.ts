@@ -37,7 +37,7 @@ const main = async () => {
       validate: false,
     }),
     persistedQueries: false,
-    introspection: true,
+    introspection: __prod__ ? false : true,
     context: () => ({ em: AppDataSource.manager }),
   });
 
