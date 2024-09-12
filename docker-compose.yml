@@ -13,7 +13,7 @@ services:
       PORT: 4000
     ports:
       - "4000:4000"
-    command: npm run dev
+    command: npm run start
     volumes:
       - app-data:/type
 
